@@ -8,7 +8,7 @@
 > 
 > Equilibrium Guard is an exploration of what zero-trust security for AI agents *could* look like. The code is functional for demonstration purposes, but this is not production-ready software. We're sharing this to start a conversation about AI agent security patterns and invite collaboration.
 
-![Equilibrium Guard Dashboard](docs/images/dashboard.png)
+<img width="1920" height="1040" alt="image" src="https://github.com/user-attachments/assets/85d713e1-7d12-4de0-9d3c-5bc74b4e6f2b" />
 
 *Proof-of-concept dashboard showing trust score, risk budget, operation mind map, decision storyline, and drift alerts.*
 
