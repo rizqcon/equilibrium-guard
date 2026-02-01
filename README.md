@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![Equilibrium Guard Dashboard](docs/images/dashboard.png)
+<img width="1920" height="1040" alt="image" src="https://github.com/user-attachments/assets/85d713e1-7d12-4de0-9d3c-5bc74b4e6f2b" />
 
 *Real-time monitoring dashboard showing trust score, risk budget, operation mind map, decision storyline, and drift alerts.*
 
