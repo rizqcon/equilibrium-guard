@@ -1,0 +1,24 @@
+{
+  "name": "@equilibrium-guard/openclaw-plugin",
+  "version": "0.1.0",
+  "description": "Zero-trust guardrails for OpenClaw AI agents",
+  "main": "index.ts",
+  "type": "module",
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "security",
+    "guardrails",
+    "ai-safety"
+  ],
+  "author": "RIZQ Technologies",
+  "license": "MIT",
+  "peerDependencies": {
+    "openclaw": ">=0.1.0"
+  }
+}

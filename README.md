@@ -364,13 +364,22 @@ This is a **proof-of-concept**. What exists:
 - ✅ Core constraint validator (functional)
 - ✅ Smart anchor with trust/budget (functional)
 - ✅ Real-time WebSocket dashboard (functional)
-- ✅ OpenClaw skill package (functional)
-- ⚠️ Integration with actual AI agents (manual/self-policing)
-- ❌ Automated enforcement layer (not implemented)
+- ✅ OpenClaw skill package (functional, self-policing)
+- ✅ OpenClaw plugin (registered, hooks defined)
+- ⚠️ Plugin enforcement — Waiting on OpenClaw to wire `before_tool_call` hook
 - ❌ Production hardening (not done)
 - ❌ Comprehensive test coverage (minimal)
 
 **This is a concept exploration, not production software.**
+
+### Integration Status
+
+| Approach | Status | Enforcement |
+|----------|--------|-------------|
+| **Skill** | ✅ Works now | Self-policing (agent follows rules voluntarily) |
+| **Plugin** | ⚠️ Hooks registered, not invoked | Waiting on OpenClaw integration |
+
+The OpenClaw plugin infrastructure supports `before_tool_call` hooks, but the hook isn't yet called in the tool execution pipeline. See [docs/OPENCLAW_PR.md](docs/OPENCLAW_PR.md) for the proposed fix.
 
 ---
 

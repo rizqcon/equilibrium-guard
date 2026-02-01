@@ -1,0 +1,60 @@
+{
+  "id": "equilibrium-guard",
+  "name": "Equilibrium Guard",
+  "description": "Zero-trust guardrails for AI agents. Risk-weighted autonomy budget with real-time dashboard.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["disabled", "shadow", "soft", "enforce"],
+        "default": "shadow",
+        "description": "Guard mode: disabled=off, shadow=log only, soft=block HIGH+, enforce=full"
+      },
+      "initialTrust": {
+        "type": "number",
+        "default": 0.7,
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Starting trust score (0-1)"
+      },
+      "budgetSize": {
+        "type": "number",
+        "default": 1.0,
+        "minimum": 0.1,
+        "description": "Autonomy budget size"
+      },
+      "dashboardPort": {
+        "type": "number",
+        "default": 8081,
+        "description": "Dashboard WebSocket server port"
+      },
+      "dashboardEnabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable real-time dashboard"
+      },
+      "riskCosts": {
+        "type": "object",
+        "description": "Budget cost per risk level",
+        "properties": {
+          "SAFE": { "type": "number", "default": 0 },
+          "LOW": { "type": "number", "default": 0.05 },
+          "MEDIUM": { "type": "number", "default": 0.15 },
+          "HIGH": { "type": "number", "default": 0.4 },
+          "CRITICAL": { "type": "number", "default": 1.0 }
+        }
+      },
+      "toolRiskMap": {
+        "type": "object",
+        "description": "Map tool names to risk levels",
+        "additionalProperties": {
+          "type": "string",
+          "enum": ["SAFE", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
+        }
+      }
+    }
+  }
+}
