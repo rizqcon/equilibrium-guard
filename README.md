@@ -4,15 +4,19 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+> ⚠️ **This is a concept proposal and proof-of-concept implementation.**
+> 
+> Equilibrium Guard is an exploration of what zero-trust security for AI agents *could* look like. The code is functional for demonstration purposes, but this is not production-ready software. We're sharing this to start a conversation about AI agent security patterns and invite collaboration.
+
 ![Equilibrium Guard Dashboard](docs/images/dashboard.png)
 
-*Real-time monitoring dashboard showing trust score, risk budget, operation mind map, decision storyline, and drift alerts.*
+*Proof-of-concept dashboard showing trust score, risk budget, operation mind map, decision storyline, and drift alerts.*
 
 ---
 
 ## What Is This?
 
-Equilibrium Guard is a **zero-trust security layer** for AI agents. It combines:
+Equilibrium Guard is a **concept proposal** for zero-trust security in AI agents. It explores:
 
 1. **Constraint Validation** — Operations checked against rules *before* execution
 2. **Risk-Weighted Autonomy** — Safe operations are free; risky ones cost budget
@@ -20,6 +24,19 @@ Equilibrium Guard is a **zero-trust security layer** for AI agents. It combines:
 4. **Drift Detection** — Catches patterns like escalating access or speed anomalies
 5. **Real-Time Dashboard** — Watch your agent's decisions as they happen
 
+Think of it like **ThreatLocker or SentinelOne, but for AI operations.**
+
+### Why Share This?
+
+AI agents are getting more capable and more autonomous. The security tooling hasn't kept up. We built this concept to:
+
+- **Start a conversation** about AI agent security patterns
+- **Prototype ideas** that could become real products
+- **Invite collaboration** from the community
+
+This is a sketch, not a finished building. If these ideas resonate, let's build something real together.
+
+---
 
 ## The Zero-Trust Approach
 
@@ -340,12 +357,30 @@ Equilibrium Guard is one layer, not a silver bullet:
 
 ---
 
+## Current Status
+
+This is a **proof-of-concept**. What exists:
+
+- ✅ Core constraint validator (functional)
+- ✅ Smart anchor with trust/budget (functional)
+- ✅ Real-time WebSocket dashboard (functional)
+- ✅ OpenClaw skill package (functional)
+- ⚠️ Integration with actual AI agents (manual/self-policing)
+- ❌ Automated enforcement layer (not implemented)
+- ❌ Production hardening (not done)
+- ❌ Comprehensive test coverage (minimal)
+
+**This is a concept exploration, not production software.**
+
+---
+
 ## Limitations
 
 1. **Self-Policing** — The agent runs checks on itself. Sophisticated attacks could potentially bypass.
 2. **Context Quality** — Garbage in, garbage out. Validation only sees what you pass.
 3. **Rule Completeness** — Only catches what's encoded. Novel vectors may pass.
 4. **Performance** — Every operation runs through validation. Adds latency.
+5. **Proof-of-Concept** — Not battle-tested. Use for exploration and prototyping.
 
 **Use as part of defense-in-depth, not as a complete solution.**
 
@@ -373,4 +408,4 @@ Contributions welcome. Open an issue to discuss before submitting PRs.
 
 ---
 
-*Equilibrium Guard — Zero-trust security for AI agents. Because "can't" is stronger than "shouldn't."*
+*Equilibrium Guard — A concept for zero-trust AI agent security. Because "can't" is stronger than "shouldn't."*
