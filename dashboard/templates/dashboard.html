@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equilibrium Guard — Security Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --border: #2a2a3a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --accent: #00d4ff;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4466;
+            --safe: #00ff88;
+            --low: #88ff00;
+            --medium: #ffaa00;
+            --high: #ff6600;
+            --critical: #ff0044;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+        
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+        
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            height: calc(100vh - 60px);
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Status Panel */
+        .status-panel {
+            grid-row: span 2;
+        }
+        
+        .status-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .status-value.mode {
+            color: var(--accent);
+        }
+        
+        /* Progress bars */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+        
+        .progress-fill.trust {
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+        }
+        
+        .progress-fill.budget {
+            background: var(--accent);
+        }
+        
+        /* Mode selector */
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.875rem;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        
+        .mode-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        
+        .checkpoint-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--success);
+            border: none;
+            border-radius: 4px;
+            color: var(--bg-primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .checkpoint-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Mind Map */
+        .mindmap-container {
+            grid-column: span 1;
+            min-height: 300px;
+        }
+        
+        #mindmap {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        .node {
+            position: absolute;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .node:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .node.safe { border-color: var(--safe); }
+        .node.low { border-color: var(--low); }
+        .node.medium { border-color: var(--medium); }
+        .node.high { border-color: var(--high); }
+        .node.critical { border-color: var(--critical); }
+        .node.blocked { background: var(--danger); color: white; }
+        
+        .node-count {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Storyline */
+        .storyline-container {
+            grid-column: span 1;
+            grid-row: span 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .storyline {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .decision-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .decision-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .decision-icon {
+            flex-shrink: 0;
+        }
+        
+        .decision-time {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            width: 60px;
+        }
+        
+        .decision-op {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .decision-risk {
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        
+        .decision-risk.safe { background: var(--safe); color: black; }
+        .decision-risk.low { background: var(--low); color: black; }
+        .decision-risk.medium { background: var(--medium); color: black; }
+        .decision-risk.high { background: var(--high); color: black; }
+        .decision-risk.critical { background: var(--critical); color: white; }
+        
+        /* Alerts Panel */
+        .alerts-panel {
+            grid-row: span 2;
+        }
+        
+        .alert-item {
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--warning);
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 0.5rem;
+            animation: alertPulse 0.5s ease;
+        }
+        
+        @keyframes alertPulse {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        
+        .alert-item.critical {
+            border-color: var(--danger);
+            background: rgba(255, 68, 102, 0.1);
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-pattern {
+            font-weight: 600;
+            color: var(--warning);
+        }
+        
+        .alert-item.critical .alert-pattern {
+            color: var(--danger);
+        }
+        
+        .alert-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        
+        .alert-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .alert-btn {
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+        
+        .alert-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+        
+        .alert-btn.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-box {
+            flex: 1;
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">⚖️</span>
+            <span class="logo-text">EQUILIBRIUM GUARD</span>
+        </div>
+        <div class="connection-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+    
+    <main class="main">
+        <!-- Status Panel -->
+        <div class="card status-panel">
+            <div class="card-header">Guard Status</div>
+            <div class="card-body">
+                <div class="status-item">
+                    <div class="status-label">Mode</div>
+                    <div class="status-value mode" id="currentMode">SHADOW</div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">Trust Score</div>
+                    <div class="status-value" id="trustScore">0.70</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill trust" id="trustBar" style="width: 70%"></div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">Risk Budget</div>
+                    <div class="status-value" id="budgetValue">1.00</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill budget" id="budgetBar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalDecisions">0</div>
+                        <div class="stat-label">Decisions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="blockedCount" style="color: var(--danger)">0</div>
+                        <div class="stat-label">Blocked</div>
+                    </div>
+                </div>
+                
+                <div class="status-label">Mode Control</div>
+                <div class="mode-selector">
+                    <button class="mode-btn" data-mode="disabled">🔓 Disabled</button>
+                    <button class="mode-btn active" data-mode="shadow">👁️ Shadow (Learn)</button>
+                    <button class="mode-btn" data-mode="soft">⚡ Soft (HIGH+ only)</button>
+                    <button class="mode-btn" data-mode="enforce">🛡️ Enforce (Full)</button>
+                </div>
+                
+                <button class="checkpoint-btn" id="checkpointBtn">
+                    ✓ Human Checkpoint
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mind Map -->
+        <div class="card mindmap-container">
+            <div class="card-header">
+                Operation Mind Map
+                <span id="mindmapStats" style="color: var(--text-secondary)"></span>
+            </div>
+            <div class="card-body">
+                <div id="mindmap"></div>
+            </div>
+        </div>
+        
+        <!-- Alerts Panel -->
+        <div class="card alerts-panel">
+            <div class="card-header">
+                Drift Alerts
+                <span id="alertCount" style="color: var(--warning)">0</span>
+            </div>
+            <div class="card-body" id="alertsList">
+                <div class="empty-state">
+                    <div class="empty-icon">✓</div>
+                    <div>No active alerts</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Storyline -->
+        <div class="card storyline-container">
+            <div class="card-header">
+                Decision Storyline
+                <span style="color: var(--text-secondary)">Real-time</span>
+            </div>
+            <div class="storyline" id="storyline">
+                <div class="empty-state">
+                    <div class="empty-icon">⏳</div>
+                    <div>Waiting for decisions...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 10;
+        
+        function connect() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+            
+            ws.onopen = () => {
+                console.log('Connected to dashboard');
+                document.getElementById('statusDot').classList.add('connected');
+                document.getElementById('statusText').textContent = 'Connected';
+                reconnectAttempts = 0;
+            };
+            
+            ws.onclose = () => {
+                document.getElementById('statusDot').classList.remove('connected');
+                document.getElementById('statusText').textContent = 'Disconnected';
+                
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    setTimeout(connect, 2000);
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+        }
+        
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'init':
+                    updateState(data.state);
+                    data.decisions.forEach(d => addDecision(d, false));
+                    data.alerts.forEach(a => addAlert(a));
+                    updateMindMap(data.mindmap);
+                    break;
+                
+                case 'decision':
+                    addDecision(data.decision, true);
+                    updateState(data.state);
+                    break;
+                
+                case 'alert':
+                    addAlert(data.alert);
+                    break;
+                
+                case 'state_update':
+                case 'state':
+                    updateState(data.state);
+                    break;
+                
+                case 'mode_changed':
+                    updateMode(data.mode);
+                    break;
+                
+                case 'checkpoint':
+                    updateBudget(data.budget);
+                    break;
+                
+                case 'alert_acknowledged':
+                    removeAlert(data.alert_id);
+                    break;
+            }
+        }
+        
+        function updateState(state) {
+            document.getElementById('currentMode').textContent = state.mode.toUpperCase();
+            document.getElementById('trustScore').textContent = state.trust_score.toFixed(2);
+            document.getElementById('trustBar').style.width = (state.trust_score * 100) + '%';
+            document.getElementById('budgetValue').textContent = state.budget_remaining.toFixed(2);
+            document.getElementById('budgetBar').style.width = (state.budget_remaining * 100) + '%';
+            document.getElementById('totalDecisions').textContent = state.total_decisions;
+            document.getElementById('blockedCount').textContent = state.blocked_count;
+            document.getElementById('alertCount').textContent = state.active_alerts;
+            
+            // Update mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === state.mode);
+            });
+        }
+        
+        function updateMode(mode) {
+            document.getElementById('currentMode').textContent = mode.toUpperCase();
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+        }
+        
+        function updateBudget(budget) {
+            document.getElementById('budgetValue').textContent = budget.toFixed(2);
+            document.getElementById('budgetBar').style.width = (budget * 100) + '%';
+        }
+        
+        function addDecision(decision, animate = true) {
+            const storyline = document.getElementById('storyline');
+            
+            // Remove empty state if present
+            const emptyState = storyline.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            const icon = decision.actually_blocked ? '🚫' : 
+                         decision.would_block ? '⚠️' : '✅';
+            
+            const time = new Date(decision.timestamp).toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const item = document.createElement('div');
+            item.className = 'decision-item';
+            if (!animate) item.style.animation = 'none';
+            
+            item.innerHTML = `
+                <span class="decision-icon">${icon}</span>
+                <span class="decision-time">${time}</span>
+                <span class="decision-op" title="${decision.operation}">${decision.operation}</span>
+                <span class="decision-risk ${decision.risk_level.toLowerCase()}">${decision.risk_level}</span>
+            `;
+            
+            storyline.insertBefore(item, storyline.firstChild);
+            
+            // Keep only last 100
+            while (storyline.children.length > 100) {
+                storyline.removeChild(storyline.lastChild);
+            }
+            
+            // Update mind map
+            updateMindMapNode(decision);
+        }
+        
+        function addAlert(alert) {
+            const alertsList = document.getElementById('alertsList');
+            
+            // Remove empty state if present
+            const emptyState = alertsList.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            const item = document.createElement('div');
+            item.className = `alert-item ${alert.severity}`;
+            item.id = `alert-${alert.id}`;
+            
+            const time = new Date(alert.timestamp).toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            item.innerHTML = `
+                <div class="alert-header">
+                    <span class="alert-pattern">⚠️ ${alert.pattern}</span>
+                    <span class="alert-time">${time}</span>
+                </div>
+                <div class="alert-desc">${alert.description}</div>
+                <div class="alert-actions">
+                    <button class="alert-btn primary" onclick="acknowledgeAlert('${alert.id}')">Acknowledge</button>
+                    <button class="alert-btn" onclick="checkpointFromAlert('${alert.id}')">Checkpoint</button>
+                </div>
+            `;
+            
+            alertsList.insertBefore(item, alertsList.firstChild);
+            updateAlertCount();
+        }
+        
+        function removeAlert(alertId) {
+            const item = document.getElementById(`alert-${alertId}`);
+            if (item) {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(20px)';
+                setTimeout(() => item.remove(), 300);
+            }
+            updateAlertCount();
+        }
+        
+        function updateAlertCount() {
+            const count = document.querySelectorAll('.alert-item').length;
+            document.getElementById('alertCount').textContent = count;
+            
+            if (count === 0) {
+                const alertsList = document.getElementById('alertsList');
+                alertsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✓</div>
+                        <div>No active alerts</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function acknowledgeAlert(alertId) {
+            ws.send(JSON.stringify({
+                type: 'acknowledge_alert',
+                alert_id: alertId
+            }));
+        }
+        
+        function checkpointFromAlert(alertId) {
+            acknowledgeAlert(alertId);
+            doCheckpoint();
+        }
+        
+        function doCheckpoint() {
+            ws.send(JSON.stringify({ type: 'checkpoint' }));
+        }
+        
+        function setMode(mode) {
+            ws.send(JSON.stringify({
+                type: 'set_mode',
+                mode: mode
+            }));
+        }
+        
+        // Mind map visualization
+        const mindmapNodes = {};
+        
+        function updateMindMap(data) {
+            const container = document.getElementById('mindmap');
+            container.innerHTML = '';
+            
+            const ops = Object.entries(data.operations || {});
+            if (ops.length === 0) return;
+            
+            document.getElementById('mindmapStats').textContent = 
+                `${ops.length} operations`;
+            
+            // Simple radial layout
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2;
+            const radius = Math.min(centerX, centerY) - 60;
+            
+            ops.forEach(([op, info], i) => {
+                const angle = (i / ops.length) * 2 * Math.PI - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle) - 40;
+                const y = centerY + radius * Math.sin(angle) - 15;
+                
+                // Determine dominant risk level
+                const riskLevels = info.risk_levels || {};
+                let dominantRisk = 'safe';
+                let maxCount = 0;
+                for (const [risk, count] of Object.entries(riskLevels)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        dominantRisk = risk.toLowerCase();
+                    }
+                }
+                
+                const node = document.createElement('div');
+                node.className = `node ${dominantRisk}`;
+                if (info.blocked > 0) node.classList.add('blocked');
+                node.style.left = x + 'px';
+                node.style.top = y + 'px';
+                node.innerHTML = `
+                    ${op}
+                    <div class="node-count">${info.count}x${info.blocked > 0 ? ` (${info.blocked}🚫)` : ''}</div>
+                `;
+                
+                container.appendChild(node);
+                mindmapNodes[op] = node;
+            });
+        }
+        
+        function updateMindMapNode(decision) {
+            const op = decision.operation;
+            if (mindmapNodes[op]) {
+                // Pulse animation
+                mindmapNodes[op].style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    mindmapNodes[op].style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+        
+        // Event listeners
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+        
+        document.getElementById('checkpointBtn').addEventListener('click', doCheckpoint);
+        
+        // Start connection
+        connect();
+    </script>
+</body>
+</html>

@@ -67,7 +67,13 @@ from .compliance_map import (
 )
 
 # High-level integration
-from .guard import EquilibriumGuard
+from .guard import (
+    EquilibriumGuard,
+    GuardMode,
+    GuardMetrics,
+    Decision,
+    create_guard,
+)
 
 __all__ = [
     # Version
@@ -103,4 +109,8 @@ __all__ = [
     "create_custom_constraints",
     # Integration
     "EquilibriumGuard",
+    "GuardMode",
+    "GuardMetrics",
+    "Decision",
+    "create_guard",
 ]

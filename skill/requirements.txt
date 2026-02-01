@@ -1,0 +1,8 @@
+# Core (required)
+pyyaml>=6.0
+
+# Dashboard (optional)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+websockets>=12.0
+requests>=2.31.0

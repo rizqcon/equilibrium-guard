@@ -1,0 +1,102 @@
+# Equilibrium Guard Configuration
+# ================================
+# Tune these values for your risk tolerance.
+
+equilibrium_guard:
+  # Starting values
+  initial_trust: 0.7      # 0.0 - 1.0 (0.7 = COLLABORATIVE)
+  budget_size: 1.0        # Autonomy budget
+  
+  # Mode: disabled | shadow | soft | enforce
+  # - disabled: No checks
+  # - shadow: Log only (learning mode)
+  # - soft: Block HIGH/CRITICAL only
+  # - enforce: Full enforcement
+  mode: shadow
+  
+  # Risk costs (how much budget each risk level consumes)
+  risk_costs:
+    SAFE: 0         # Unlimited
+    LOW: 0.05       # ~20 ops before checkpoint
+    MEDIUM: 0.15    # ~6-7 ops before checkpoint
+    HIGH: 0.40      # 2-3 ops before checkpoint
+    CRITICAL: 1.0   # Always checkpoint
+  
+  # Minimum trust required for each risk level
+  trust_required:
+    SAFE: 0         # Always allowed
+    LOW: 0.2        # MINIMAL trust
+    MEDIUM: 0.4     # CAUTIOUS trust
+    HIGH: 0.6       # COLLABORATIVE trust
+    CRITICAL: 0.8   # HIGH_TRUST required
+  
+  # Trust adjustments
+  trust_boost_clean: 0.005      # Per clean operation
+  trust_boost_streak: 0.01      # Bonus for 10+ clean ops
+  trust_boost_interaction: 0.05 # Human message
+  trust_boost_checkpoint: 0.1   # Human approval
+  trust_penalty_warning: 0.02   # Per advisory warning
+  trust_penalty_violation: 0.2  # Per constraint violation
+  
+  # Drift detection
+  max_minutes_without_human: 60  # Force checkpoint after this
+  speed_threshold_per_minute: 60 # Ops/min before speed drift
+  
+  # Dashboard
+  dashboard_enabled: true
+  dashboard_port: 8081
+  dashboard_url: "http://localhost:8081"
+
+# Operation risk mappings
+# Add your own patterns here
+operation_risks:
+  # SAFE operations (cost: 0)
+  safe_patterns:
+    - "read"
+    - "parse"
+    - "compute"
+    - "search"
+    - "list"
+    - "get"
+    - "fetch_local"
+  
+  # LOW operations (cost: 0.05)
+  low_patterns:
+    - "write_cache"
+    - "edit_minor"
+    - "update_local"
+  
+  # MEDIUM operations (cost: 0.15)
+  medium_patterns:
+    - "exec"
+    - "create"
+    - "update"
+    - "write"
+    - "edit"
+  
+  # HIGH operations (cost: 0.40)
+  high_patterns:
+    - "web_fetch"
+    - "api_call"
+    - "message"
+    - "external"
+    - "send"
+    - "post"
+  
+  # CRITICAL operations (always checkpoint)
+  critical_patterns:
+    - "delete"
+    - "drop"
+    - "truncate"
+    - "publish"
+    - "broadcast"
+    - "production"
+
+# Custom constraints (optional)
+# Add your own rules here
+constraints: []
+#  - id: "my_rule"
+#    name: "My Custom Rule"
+#    description: "Example constraint"
+#    check: "ctx.get('allowed', False)"
+#    severity: "REQUIRED"  # ADVISORY | REQUIRED | MANDATORY
